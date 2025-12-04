@@ -31,6 +31,12 @@ const Index = () => {
   }
 
   if (quizState === 'quiz' && currentQuestion) {
+    // Lógica para calcular erros:
+    // Pega o número da pergunta atual e subtrai 1 para saber quantas já passaram.
+    // Depois subtrai os acertos para sobrar os erros.
+    const answeredCount = currentQuestionNumber - 1;
+    const wrongAnswersCount = answeredCount - correctAnswersCount;
+
     return (
       <div className="min-h-screen bg-secondary">
         {/* Timer */}
@@ -53,12 +59,14 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">{userTeam}</p>
                 </div>
               </div>
+              
+              {/* Placar de Acertos e Erros */}
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">
-                  {correctAnswersCount} acertos
+                <p className="text-sm font-bold text-emerald-600 flex items-center justify-end gap-1">
+                  {correctAnswersCount} Acertos
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  de {currentQuestionNumber - 1} respondidas
+                <p className="text-sm font-bold text-rose-500 flex items-center justify-end gap-1">
+                  {wrongAnswersCount} Erros
                 </p>
               </div>
             </div>

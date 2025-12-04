@@ -16,7 +16,12 @@ export function CompletedScreen({
   totalQuestions,
   onRestart,
 }: CompletedScreenProps) {
-  const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+  // CORREÇÃO DE SEGURANÇA:
+  // Garante que o número de acertos nunca ultrapasse o total de perguntas
+  const safeCorrectAnswers = Math.min(correctAnswers, totalQuestions);
+
+  // Calcula a porcentagem usando o número seguro
+  const percentage = Math.round((safeCorrectAnswers / totalQuestions) * 100);
 
   const getMessage = () => {
     if (percentage >= 90) return 'Excelente! Você domina o assunto!';
@@ -52,7 +57,8 @@ export function CompletedScreen({
           </div>
 
           <p className="text-lg text-foreground mb-4">
-            {correctAnswers} de {totalQuestions} corretas
+            {/* Usa a variável segura aqui também para não mostrar "11 de 10" */}
+            {safeCorrectAnswers} de {totalQuestions} corretas
           </p>
 
           <p className="text-muted-foreground">{getMessage()}</p>
@@ -71,7 +77,6 @@ export function CompletedScreen({
         </Button>
 
         {/* WEG Footer */}
-        {/* Alteração aqui: Adicionado 'mt-8' para afastar do botão */}
         <div className="text-center mb-8 mt-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 overflow-hidden">
             <img 

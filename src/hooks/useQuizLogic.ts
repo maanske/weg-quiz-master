@@ -45,25 +45,6 @@ export function useQuizLogic() {
     return answers.filter((a) => a.isCorrect).length;
   }, [answers]);
 
-  // Select a random question from unanswered
-  const selectRandomQuestion = useCallback(() => {
-    if (unansweredQuestions.length === 0) {
-      // Move to next category
-      if (currentCategoryIndex < CATEGORY_ORDER.length - 1) {
-        setCurrentCategoryIndex((prev) => prev + 1);
-        setAnsweredQuestions(new Set());
-      } else {
-        // Quiz completed, show feedback
-        setQuizState('feedback');
-        setIsTimerRunning(false);
-      }
-      return;
-    }
-
-    const randomIndex = Math.floor(Math.random() * unansweredQuestions.length);
-    setCurrentQuestion(unansweredQuestions[randomIndex]);
-  }, [unansweredQuestions, currentCategoryIndex]);
-
   // Start quiz
   const startQuiz = useCallback((name: string, team: string) => {
     setUserName(name);
@@ -80,7 +61,7 @@ export function useQuizLogic() {
     setCurrentQuestion(primaryQuestions[randomIndex]);
   }, []);
 
-  // Handle answer
+  // Handle answer (LÓGICA CORRIGIDA)
   const handleAnswer = useCallback(
     (questionId: string, optionId: string, isCorrect: boolean) => {
       if (!currentQuestion) return;
@@ -96,56 +77,60 @@ export function useQuizLogic() {
         timestamp: new Date().toISOString(),
       };
 
-      // Save answer
+      // 1. Salva a resposta (Independente se acertou ou errou)
       setAnswers((prev) => [...prev, answer]);
 
-      // Send to Google Sheets
+      // 2. Envia para o Google Sheets
       sendAnswerToSheets(answer);
 
-      if (isCorrect) {
-        // Mark as answered and move to next
-        setAnsweredQuestions((prev) => new Set([...prev, questionId]));
+      // 3. Marca a pergunta como respondida para não repetir
+      setAnsweredQuestions((prev) => {
+        const newSet = new Set(prev);
+        newSet.add(questionId);
+        return newSet;
+      });
+
+      // 4. Lógica de Navegação: Próxima pergunta ou próxima fase
+      // Remove a pergunta atual da lista de "restantes"
+      const remainingInCategory = unansweredQuestions.filter((q) => q.id !== questionId);
+
+      if (remainingInCategory.length === 0) {
+        // --- ACABOU A CATEGORIA ATUAL ---
         
-        // Check if category is complete
-        const remainingInCategory = unansweredQuestions.filter((q) => q.id !== questionId);
-        
-        if (remainingInCategory.length === 0) {
-          // Move to next category
-          if (currentCategoryIndex < CATEGORY_ORDER.length - 1) {
-            setTimeout(() => {
-              setCurrentCategoryIndex((prev) => prev + 1);
-              setAnsweredQuestions(new Set());
-              const nextCategory = CATEGORY_ORDER[currentCategoryIndex + 1];
-              const nextCategoryQuestions = quizQuestions.filter((q) => q.category === nextCategory);
+        if (currentCategoryIndex < CATEGORY_ORDER.length - 1) {
+          // Tem próxima categoria? Avança.
+          setTimeout(() => {
+            setCurrentCategoryIndex((prev) => prev + 1);
+            setAnsweredQuestions(new Set()); // Reseta respondidas para a nova fase
+            
+            // Pega a primeira pergunta da nova categoria
+            const nextCategory = CATEGORY_ORDER[currentCategoryIndex + 1];
+            const nextCategoryQuestions = quizQuestions.filter((q) => q.category === nextCategory);
+            
+            if (nextCategoryQuestions.length > 0) {
               const randomIndex = Math.floor(Math.random() * nextCategoryQuestions.length);
               setCurrentQuestion(nextCategoryQuestions[randomIndex]);
-            }, 100);
-          } else {
-            // Quiz completed
-            setTimeout(() => {
-              setQuizState('feedback');
-              setIsTimerRunning(false);
-            }, 100);
-          }
+            }
+          }, 600); // Delay visual
         } else {
-          // Select next random question in same category
+          // Não tem mais categorias? Quiz Finalizado.
           setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * remainingInCategory.length);
-            setCurrentQuestion(remainingInCategory[randomIndex]);
-          }, 100);
+            setQuizState('feedback');
+            setIsTimerRunning(false);
+          }, 600);
         }
+
       } else {
-        // Wrong answer - select another random question from same category (excluding current)
-        const otherQuestions = categoryQuestions.filter((q) => q.id !== questionId);
-        if (otherQuestions.length > 0) {
-          setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * otherQuestions.length);
-            setCurrentQuestion(otherQuestions[randomIndex]);
-          }, 100);
-        }
+        // --- AINDA TEM PERGUNTAS NA MESMA CATEGORIA ---
+        
+        // Seleciona a próxima aleatória
+        setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * remainingInCategory.length);
+          setCurrentQuestion(remainingInCategory[randomIndex]);
+        }, 600);
       }
     },
-    [currentQuestion, userName, userTeam, currentCategory, unansweredQuestions, currentCategoryIndex, categoryQuestions]
+    [currentQuestion, userName, userTeam, currentCategory, unansweredQuestions, currentCategoryIndex]
   );
 
   // Handle feedback submit

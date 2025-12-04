@@ -71,9 +71,14 @@ export function CompletedScreen({
         </Button>
 
         {/* WEG Footer */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary mb-2">
-            <span className="text-lg font-bold text-primary-foreground">W</span>
+        {/* Alteração aqui: Adicionado 'mt-8' para afastar do botão */}
+        <div className="text-center mb-8 mt-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 overflow-hidden">
+            <img 
+              src="/favicon.ico" 
+              alt="Logo WEG"
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <p className="text-sm text-muted-foreground">
             Quiz de Comunicação WEG

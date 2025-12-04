@@ -4,9 +4,18 @@ import { getCategoryLabel } from '@/data/questions';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
+// --- CONFIGURAÇÃO DE CONTAGEM ---
+// Defina aqui quantas perguntas existem ANTES de chegar nesta categoria.
+// Exemplo: Se 'primary' tem 3 perguntas, o offset de 'intermediate' é 3.
+const CATEGORY_OFFSETS: Record<QuestionCategory, number> = {
+  primary: 0,       // Começa do 0
+  intermediate: 3,  // Soma as 3 da primária (Ajuste este número se tiver mais/menos)
+  secondary: 6,     // Soma 3 da primária + 3 da intermediária (Ajuste este número)
+};
+
 interface QuestionCardProps {
   question: Question;
-  questionNumber: number;
+  questionNumber: number; // O número vindo do pai (que está resetando)
   totalQuestions: number;
   category: QuestionCategory;
   onAnswer: (questionId: string, optionId: string, isCorrect: boolean) => void;
@@ -23,6 +32,10 @@ export function QuestionCard({
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [flashClass, setFlashClass] = useState('');
+
+  // Calcula o número real da pergunta (Global)
+  // Se o pai manda "1" e estamos no intermediário, soma 3 = Pergunta 4
+  const globalQuestionNumber = questionNumber + (CATEGORY_OFFSETS[category] || 0);
 
   useEffect(() => {
     // Reset state when question changes
@@ -69,7 +82,8 @@ export function QuestionCard({
           {getCategoryLabel(category)}
         </span>
         <span className="text-sm text-muted-foreground">
-          Pergunta {questionNumber} de {totalQuestions}
+          {/* Usamos o globalQuestionNumber aqui para mostrar 4, 5, 6... */}
+          Pergunta {globalQuestionNumber} de {totalQuestions}
         </span>
       </div>
 
@@ -132,7 +146,8 @@ export function QuestionCard({
         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${(questionNumber / totalQuestions) * 100}%` }}
+            // Usamos o globalQuestionNumber também na barra para ela não "voltar"
+            style={{ width: `${(globalQuestionNumber / totalQuestions) * 100}%` }}
           />
         </div>
       </div>

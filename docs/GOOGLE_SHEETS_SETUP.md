@@ -47,7 +47,7 @@ Este documento explica como configurar a integração com Google Sheets para sal
 2. No arquivo `src/hooks/useQuizLogic.ts`, substitua as funções mock:
 
 ```typescript
-const APPS_SCRIPT_URL = 'SUA_URL_DO_APPS_SCRIPT_AQUI';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzudwHLoaq_LZmYH3vBzHpgq83SGfDjVfWsJJdu9n1LWJChR71ZxVId5xJ3nmV4iDef/exec';
 
 async function sendAnswerToSheets(answer: QuizAnswer) {
   try {

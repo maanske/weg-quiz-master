@@ -4,6 +4,7 @@ import { FeedbackForm } from '@/components/quiz/FeedbackForm';
 import { CompletedScreen } from '@/components/quiz/CompletedScreen';
 import { Timer } from '@/components/quiz/Timer';
 import { useQuizLogic } from '@/hooks/useQuizLogic';
+import { BsPersonFill } from "react-icons/bs";
 
 const Index = () => {
   const {
@@ -45,7 +46,7 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary-foreground">W</span>
+                  <BsPersonFill className="text-primary-foreground text-2xl" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">{userName}</p>

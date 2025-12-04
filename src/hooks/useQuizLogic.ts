@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 
 const CATEGORY_ORDER: QuestionCategory[] = ['primary', 'intermediate', 'secondary'];
 
+// URL do Google Apps Script
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzudwHLoaq_LZmYH3vBzHpgq83SGfDjVfWsJJdu9n1LWJChR71ZxVId5xJ3nmV4iDef/exec';
+
 export function useQuizLogic() {
   const [quizState, setQuizState] = useState<QuizState>('welcome');
   const [userName, setUserName] = useState('');
@@ -96,7 +99,7 @@ export function useQuizLogic() {
       // Save answer
       setAnswers((prev) => [...prev, answer]);
 
-      // Send to Google Sheets (mock for now)
+      // Send to Google Sheets
       sendAnswerToSheets(answer);
 
       if (isCorrect) {
@@ -200,13 +203,27 @@ export function useQuizLogic() {
 
 // Mock functions for Google Sheets integration
 async function sendAnswerToSheets(answer: QuizAnswer) {
-  console.log('Sending answer to Sheets:', answer);
-  // TODO: Implement actual Google Sheets integration
-  // This would call your Google Apps Script Web App URL
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'answer', data: answer }),
+    });
+  } catch (error) {
+    console.error('Erro ao enviar resposta:', error);
+  }
 }
 
 async function sendFeedbackToSheets(feedback: FeedbackData) {
-  console.log('Sending feedback to Sheets:', feedback);
-  // TODO: Implement actual Google Sheets integration
-  // This would call your Google Apps Script Web App URL
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'feedback', data: feedback }),
+    });
+  } catch (error) {
+    console.error('Erro ao enviar feedback:', error);
+  }
 }

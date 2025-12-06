@@ -55,8 +55,8 @@ const Index = () => {
                   <BsPersonFill className="text-primary-foreground text-2xl" />
                 </div>
                 <div>
-                  <p className="font-semibold text-foreground">{userName}</p>
-                  <p className="text-sm text-muted-foreground">{userTeam}</p>
+                  <p className="font-semibold text-foreground">Nome: {userName}</p>
+                  <p className="text-sm text-muted-foreground">Equipe: {userTeam}</p>
                 </div>
               </div>
               
